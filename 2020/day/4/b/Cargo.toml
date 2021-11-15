@@ -1,8 +1,9 @@
 [package]
-name = "b"
+name = "aoc-2020-4-b"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+path = "src/main.rs"
 
 [dependencies]
