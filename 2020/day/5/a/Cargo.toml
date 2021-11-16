@@ -1,0 +1,10 @@
+[package]
+name = "aoc-2020-5-a"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/main.rs"
+
+[dependencies]
+partial_application = "0.2.1"
