@@ -1,5 +1,5 @@
 [package]
-name = "aoc-2020-5"
+name = "aoc-2020-6"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,4 +7,3 @@ edition = "2021"
 path = "src/main.rs"
 
 [dependencies]
-partial_application = "0.2.1"

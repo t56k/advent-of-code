@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "aoc-2020-5-a"
+name = "aoc-2020-5"
 version = "0.1.0"
 dependencies = [
  "partial_application",

@@ -17,8 +17,8 @@ pub fn main() -> io::Result<()> {
         .collect();
 
     // max value
-    let part_a: u16 = *seat_ids.iter().max().unwrap();
-    println!("part a: {}", part_a);
+    let part_one: u16 = *seat_ids.iter().max().unwrap();
+    println!("part one: {}", part_one);
 
     // missing value
     seat_ids.sort();
@@ -30,7 +30,7 @@ pub fn main() -> io::Result<()> {
         last = *seat;
     }
 
-    println!("part b: {}", last + 1);
+    println!("part two: {}", last + 1);
     Ok(())
 }
 
