@@ -6,17 +6,31 @@ use std::io::prelude::*;
 use std::io::{self, BufReader};
 
 pub fn main() -> io::Result<()> {
-    let file = File::open("../input")?;
+    let file = File::open("./input")?;
     let reader = BufReader::new(file);
 
-    let max: u16 = reader
+    let mut seat_ids: Vec<u16> = reader
         .lines()
         .into_iter()
         .map(|line| convert_to_row_col(&line.unwrap()))
         .map(|(row, col)| calc_seat_id(row, col))
-        .fold(std::u16::MIN, |max, cur| max.max(cur));
+        .collect();
 
-    println!("max id: {}", max);
+    // max value
+    let part_a: u16 = *seat_ids.iter().max().unwrap();
+    println!("part a: {}", part_a);
+
+    // missing value
+    seat_ids.sort();
+    let mut last = seat_ids[0];
+    for seat in &seat_ids[1..] {
+        if seat - 1 != last {
+            break;
+        }
+        last = *seat;
+    }
+
+    println!("part b: {}", last + 1);
     Ok(())
 }
 
