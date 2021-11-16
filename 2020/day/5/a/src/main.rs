@@ -6,13 +6,17 @@ use std::io::prelude::*;
 use std::io::{self, BufReader};
 
 pub fn main() -> io::Result<()> {
-    let f = File::open("../input")?;
-    let r = BufReader::new(f);
+    let file = File::open("../input")?;
+    let reader = BufReader::new(file);
 
-    for line in r.lines() {
-        println!("{:?}", convert_to_row_col(&line.unwrap()));
-    }
+    let max: u16 = reader
+        .lines()
+        .into_iter()
+        .map(|line| convert_to_row_col(&line.unwrap()))
+        .map(|(row, col)| calc_seat_id(row, col))
+        .fold(std::u16::MIN, |max, cur| max.max(cur));
 
+    println!("max id: {}", max);
     Ok(())
 }
 
