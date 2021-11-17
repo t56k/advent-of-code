@@ -7,12 +7,11 @@ struct Operation {
 }
 
 pub fn main() {
-    let acc: isize = 0;
     let ops_performed: Vec<usize> = [].to_vec();
     let contents = fs::read_to_string("./input").expect("Couldn't read input");
     let ops: Vec<Operation> = parse_contents(contents);
 
-    perform_part_one(&ops, 0, acc, ops_performed);
+    perform_part_one(&ops, 0, 0, ops_performed);
 }
 
 fn perform_part_one(ops: &Vec<Operation>, i: usize, mut acc: isize, mut ops_performed: Vec<usize>) {
