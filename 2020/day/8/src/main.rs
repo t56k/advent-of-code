@@ -11,10 +11,11 @@ pub fn main() {
     let contents = fs::read_to_string("./input").expect("Couldn't read input");
     let ops: Vec<Operation> = parse_contents(contents);
 
-    perform_part_one(&ops, 0, 0, ops_performed);
+    let acc = perform_part_one(&ops, 0, 0, ops_performed);
+    println!("part one: {}", acc.unwrap());
 }
 
-fn perform_part_one(ops: &Vec<Operation>, i: usize, mut acc: isize, mut ops_performed: Vec<usize>) {
+fn perform_part_one(ops: &Vec<Operation>, i: usize, mut acc: isize, mut ops_performed: Vec<usize>) -> Option<isize> {
     if !ops_performed.iter().any(|&o| o == i) {
         ops_performed.push(i);
 
@@ -26,11 +27,11 @@ fn perform_part_one(ops: &Vec<Operation>, i: usize, mut acc: isize, mut ops_perf
             },
             "jmp" => perform_part_one(ops, add(i, ops[i].argument), acc, ops_performed),
             "nop" => perform_part_one(ops, i + 1, acc, ops_performed),
-            _ => println!("Invalid operation")
+            _ => return None
         }
     } else {
         // when the first operation attempts repetition
-        println!("part one: {}", acc);
+        return Some(acc)
     }
 }
 
