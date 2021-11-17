@@ -14,6 +14,10 @@ pub fn main() {
     let shiny_gold_holding_colours = get_shiny_gold_holding_bag_colours(&rules);
 
     println!("part one: {}", shiny_gold_holding_colours.len());
+
+    let number_of_bags = count_bags_in_shiny_gold_bag(&rules);
+
+    println!("part two: {}", number_of_bags);
 }
 
 fn read_lines(inp: &str) -> Vec<&str> {
@@ -111,4 +115,18 @@ fn can_contain_shiny_gold_bag(
 
 fn is_shiny_gold_bag(bag: &Bag) -> bool {
     bag.colour == "shiny gold"
+}
+
+fn count_bags_in_shiny_gold_bag(rules: &HashMap<String, Option<Vec<Bag>>>) -> usize {
+    let shiny_gold_bag = &rules["shiny gold"];
+    count_inner_bags(shiny_gold_bag, rules)
+}
+
+fn count_inner_bags(bags: &Option<Vec<Bag>>, rules: &HashMap<String, Option<Vec<Bag>>>) -> usize {
+    match bags {
+        None => 0,
+        Some(inner_bags) => inner_bags.iter().fold(0, |acc, cur| {
+            acc + cur.count + (cur.count * count_inner_bags(&rules[&cur.colour], rules))
+        }),
+    }
 }
