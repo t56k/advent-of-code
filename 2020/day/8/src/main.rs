@@ -3,36 +3,27 @@ use std::fs;
 #[derive(Debug)]
 struct Operation {
     name: String,
-    argument: isize,
+    arg: isize,
 }
 
 pub fn main() {
-    let ops_performed: Vec<usize> = [].to_vec();
     let contents = fs::read_to_string("./input").expect("Couldn't read input");
-    let ops: Vec<Operation> = parse_contents(contents);
 
-    let acc = perform_part_one(&ops, 0, 0, ops_performed);
-    println!("part one: {}", acc.unwrap());
-}
+    let mut acc: isize = 0;
+    let mut i: usize = 0;
+    let mut ops: Vec<Operation> = parse_contents(contents);
+    let mut ops_performed: Vec<usize> = [].to_vec();
 
-fn perform_part_one(ops: &Vec<Operation>, i: usize, mut acc: isize, mut ops_performed: Vec<usize>) -> Option<isize> {
-    if !ops_performed.iter().any(|&o| o == i) {
+    while !ops_performed.contains(&i) {
         ops_performed.push(i);
-
-        let f = ops[i].name.as_ref();
-        match f {
-            "acc" => {
-                acc += Some(ops[i].argument).unwrap();
-                perform_part_one(ops, i + 1, acc, ops_performed)
-            },
-            "jmp" => perform_part_one(ops, add(i, ops[i].argument), acc, ops_performed),
-            "nop" => perform_part_one(ops, i + 1, acc, ops_performed),
-            _ => return None
-        }
-    } else {
-        // when the first operation attempts repetition
-        return Some(acc)
+        calculate(&ops[i], &mut i, &mut acc);
     }
+    println!("part one: {}", acc);
+
+    let corruptions_to_check = get_possible_corruptions(&ops);
+    corruptions_to_check
+        .iter()
+        .any(|i| test_corruption(&mut ops, *i));
 }
 
 fn read_lines(inp: &str) -> Vec<&str> {
@@ -52,15 +43,64 @@ fn parse_contents(inp: String) -> Vec<Operation> {
 fn parse_operation(line: &str) -> Operation {
     let args = line.split(' ').collect::<Vec<&str>>();
     let name = args[0].to_string();
-    let argument = args[1].parse().unwrap();
+    let arg = args[1].parse().unwrap();
 
-    Operation { name, argument }
+    Operation { name, arg }
 }
 
-fn add(u: usize, i: isize) -> usize {
-    if i.is_negative() {
-        u - i.wrapping_abs() as u32 as usize
+fn get_possible_corruptions(ops: &Vec<Operation>) -> Vec<usize> {
+    ops.iter()
+        .enumerate()
+        .filter(|(_, op)| op.name == "nop" || op.name == "jmp")
+        .map(|(corruption, _)| corruption)
+        .collect()
+}
+
+fn test_corruption(ops: &mut Vec<Operation>, i: usize) -> bool {
+    let old_op = ops[i].name.to_owned();
+    ops[i].name = if old_op == "nop" {
+        "jmp".to_string()
     } else {
-        u + i as usize
+        "nop".to_string()
+    };
+
+    let res = test_solve(&ops);
+    ops[i].name = old_op.to_string();
+    res
+}
+
+fn test_solve(ops: &Vec<Operation>) -> bool {
+    let mut acc: isize = 0;
+    let mut i: usize = 0;
+    let mut ops_performed: Vec<usize> = [].to_vec();
+
+    while !ops_performed.contains(&i) {
+        if i == ops.len() {
+            println!("part two: {}", acc);
+            return true;
+        }
+        ops_performed.push(i);
+        calculate(&ops[i], &mut i, &mut acc);
+    }
+    false
+}
+
+fn calculate(op: &Operation, i: &mut usize, acc: &mut isize) {
+    let name = op.name.as_ref();
+    let arg = op.arg;
+    match name {
+        "nop" => *i += 1,
+        "acc" => {
+            *i += 1;
+            *acc += arg
+        }
+        "jmp" => {
+            let new_i = (*i as isize) + arg;
+            if new_i < 0 {
+                panic!("jumping into negative space");
+            }
+            *i = new_i as usize;
+        }
+        invalid_op => panic!("invalid op {}", invalid_op),
     }
 }
