@@ -1,3 +1,5 @@
-# advent of code
+# Advent of Code 2021
 
-## many days stolen outright before day 8, 2020
+## You'd be wise to ignore earlier years for the most part
+
+Aiming for stable, idiomatic Rust with the fewest deps possible.
