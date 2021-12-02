@@ -13,13 +13,10 @@ fn count_windows(contents: &Vec<usize>, span: usize) -> usize {
     contents
         .iter()
         .zip(contents[span..].iter())
-        .filter(|( a, b )| a < b)
+        .filter(|(a, b)| a < b)
         .count()
 }
 
 fn parse_input(input: String) -> Vec<usize> {
-    input
-        .lines()
-        .map(|l| l.parse().unwrap())
-        .collect()
+    input.lines().map(|l| l.parse().unwrap()).collect()
 }
