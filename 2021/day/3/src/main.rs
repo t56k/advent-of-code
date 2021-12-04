@@ -19,13 +19,10 @@ pub fn main() {
         let _ = replace(&mut epsilon[i as usize], least_common(m));
     }
 
-    let gamma_str: String = gamma.iter().map(|&c| c.to_string()).collect();
-    let gamma_int = isize::from_str_radix(&gamma_str, 2).unwrap();
+    let gamma_int = binary_vec_to_u32(gamma);
+    let epsilon_int = binary_vec_to_u32(epsilon);
 
-    let epsilon_str: String = epsilon.iter().map(|&c| c.to_string()).collect();
-    let epsilon_int = isize::from_str_radix(&epsilon_str, 2).unwrap();
-
-    println!("{}", gamma_int * epsilon_int);
+    println!("part a: {}", gamma_int * epsilon_int);
 }
 
 fn nth_column(contents: &Vec<&str>, n: u32) -> Vec<u32> {
@@ -53,4 +50,9 @@ fn least_common(most_common: u32) -> u32 {
     } else {
         0
     }
+}
+
+fn binary_vec_to_u32(binary_vec: Vec<u32>) -> u32 {
+    let binary_str: String = binary_vec.iter().map(|&c| c.to_string()).collect();
+    isize::from_str_radix(&binary_str, 2).unwrap() as u32
 }
