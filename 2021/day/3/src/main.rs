@@ -19,10 +19,10 @@ pub fn main() {
         let _ = replace(&mut epsilon[i as usize], least_common(m));
     }
 
-    let gamma_str: String = gamma.iter().map( |&c| c.to_string()).collect();
+    let gamma_str: String = gamma.iter().map(|&c| c.to_string()).collect();
     let gamma_int = isize::from_str_radix(&gamma_str, 2).unwrap();
 
-    let epsilon_str: String = epsilon.iter().map( |&c| c.to_string()).collect();
+    let epsilon_str: String = epsilon.iter().map(|&c| c.to_string()).collect();
     let epsilon_int = isize::from_str_radix(&epsilon_str, 2).unwrap();
 
     println!("{}", gamma_int * epsilon_int);
@@ -36,10 +36,7 @@ fn nth_column(contents: &Vec<&str>, n: u32) -> Vec<u32> {
 }
 
 fn zero_count(column: &Vec<u32>) -> u32 {
-    column
-        .iter()
-        .filter(|&i| *i == 0)
-        .count() as u32
+    column.iter().filter(|&i| *i == 0).count() as u32
 }
 
 fn most_common(zero_count: u32, column: &Vec<u32>) -> u32 {
