@@ -98,19 +98,11 @@ fn count(column: &Vec<u32>, n: u32) -> u32 {
 }
 
 fn most_common(count: u32, column: &Vec<u32>) -> u32 {
-    if count > (column.len() / 2).try_into().unwrap() {
-        0
-    } else {
-        1
-    }
+    if count > (column.len() / 2).try_into().unwrap() { 0 } else { 1 }
 }
 
 fn least_common(most_common: u32) -> u32 {
-    if most_common == 0 {
-        1
-    } else {
-        0
-    }
+    if most_common == 0 { 1 } else { 0 }
 }
 
 fn binary_vec_to_usize(binary_vec: &Vec<u32>) -> u32 {
