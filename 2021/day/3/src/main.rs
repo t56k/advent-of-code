@@ -1,17 +1,39 @@
 use std::fs;
 use std::mem::replace;
 
+struct Candidates<'a> {
+    o: Vec<&'a str>,
+    co2: Vec<&'a str>,
+}
+
+struct GasRates {
+    o: Option<u32>,
+    co2: Option<u32>,
+}
+
 pub fn main() {
     let input = fs::read_to_string("./input").expect("Couldn't read input");
-    let contents = input.lines().collect::<Vec<_>>();
-    let binary_len: u32 = contents.iter().nth(0).unwrap().len() as u32;
-    let cols: Vec<u32> = (0..binary_len).collect();
+    let contents = parse(&input);
+    let part_a = part_a(&contents);
+    let part_b = part_b(&contents);
 
-    let mut gamma_vec: Vec<u32> = cols.clone(); // most-common
-    let mut epsilon_vec: Vec<u32> = cols.clone(); // least-common
+    println!("{}", part_a.clone());
+    println!("{}", part_b);
+}
+
+fn parse(input: &str) -> Vec<&str> {
+    input.lines().collect()
+}
+
+fn part_a(contents: &Vec<&str>) -> u32 {
+    let len = contents[0].len() as u32;
+    let cols: Vec<u32> = (0 as u32..len).collect();
+
+    let mut gamma_vec: Vec<u32> = cols.clone();
+    let mut epsilon_vec: Vec<u32> = cols.clone();
 
     for i in cols {
-        let col = nth_column(&contents, i);
+        let col = nth_column(&contents, i as usize);
         let zeroes = count(&col, 0);
         let most = most_common(zeroes, &col);
 
@@ -19,21 +41,55 @@ pub fn main() {
         let _ = replace(&mut epsilon_vec[i as usize], least_common(most));
     }
 
-    let gamma_int = binary_vec_to_u32(&gamma_vec);
-    let epsilon_int = binary_vec_to_u32(&epsilon_vec);
-    let oxygen_results = filter_by_critera(&contents, &gamma_vec);
-    let co2_results = filter_by_critera(&contents, &epsilon_vec);
-    let oxygen_int = isize::from_str_radix(&oxygen_results.iter().nth(0).unwrap(), 2).unwrap() as u32;
-    let co2_int = isize::from_str_radix(&co2_results.iter().nth(1).unwrap(), 2).unwrap() as u32;
+    let gamma_int = binary_vec_to_usize(&gamma_vec);
+    let epsilon_int = binary_vec_to_usize(&epsilon_vec);
 
-    println!("part a: {}", gamma_int * epsilon_int);
-    println!("part b: {}", oxygen_int * co2_int);
+    (gamma_int * epsilon_int).try_into().unwrap()
 }
 
-fn nth_column(contents: &Vec<&str>, n: u32) -> Vec<u32> {
+fn part_b(contents: &Vec<&str>) -> u32 {
+    let len = contents[0].len();
+
+    let (_, nums) = (0..len).fold(
+        (
+            Candidates {
+                o: contents.clone(),
+                co2: contents.clone(),
+            },
+            GasRates { o: None, co2: None },
+        ),
+        |(mut candidates, mut final_nums), i| {
+            let (o_zeroes, o_ones) = count_ones_zeroes(&candidates.o, i);
+            let most_common = if o_ones >= o_zeroes { '1' } else { '0' };
+
+            let (co2_zeroes, co2_ones) = count_ones_zeroes(&candidates.co2, i);
+            let least_common = if co2_zeroes <= co2_ones { '0' } else { '1' };
+
+            candidates.o = filter_by_bit(candidates.o, i, most_common);
+            candidates.co2 = filter_by_bit(candidates.co2, i, least_common);
+
+            if let None = final_nums.co2 {
+                if candidates.co2.len() == 1 {
+                    final_nums.co2 = Some(u32::from_str_radix(candidates.co2[0], 2).unwrap());
+                }
+            }
+            if let None = final_nums.o {
+                if candidates.o.len() == 1 {
+                    final_nums. o= Some(u32::from_str_radix(candidates.o[0], 2).unwrap());
+                }
+            }
+
+            (candidates, final_nums)
+        }
+    );
+
+    nums.o.unwrap() * nums.co2.unwrap()
+}
+
+fn nth_column(contents: &Vec<&str>, n: usize) -> Vec<u32> {
     contents
         .iter()
-        .map(|bin| bin.chars().nth(n as usize).unwrap().to_digit(10).unwrap())
+        .map(|bin| bin.chars().nth(n).unwrap().to_digit(10).unwrap())
         .collect::<Vec<u32>>()
 }
 
@@ -42,7 +98,7 @@ fn count(column: &Vec<u32>, n: u32) -> u32 {
 }
 
 fn most_common(count: u32, column: &Vec<u32>) -> u32 {
-    if count > column.len() as u32 / 2 {
+    if count > (column.len() / 2).try_into().unwrap() {
         0
     } else {
         1
@@ -57,23 +113,68 @@ fn least_common(most_common: u32) -> u32 {
     }
 }
 
-fn binary_vec_to_u32(binary_vec: &Vec<u32>) -> u32 {
+fn binary_vec_to_usize(binary_vec: &Vec<u32>) -> u32 {
     let binary_str: String = binary_vec.iter().map(|&c| c.to_string()).collect();
     isize::from_str_radix(&binary_str, 2).unwrap() as u32
 }
 
-fn filter_by_critera(contents: &Vec<&str>, criteria: &Vec<u32>) -> Vec<String> {
+fn count_ones_zeroes(data: &Vec<&str>, i: usize) -> (u32, u32) {
+    data.iter().fold((0, 0), |(zeroes, ones), bin| {
+        let bit = bin.chars().nth(i).unwrap();
+        if bit == '1' {
+            (zeroes, ones + 1)
+        } else {
+            (zeroes + 1, ones)
+        }
+    })
+}
+
+fn filter_by_bit(contents: Vec<&str>, i: usize, bit: char) -> Vec<&str> {
     contents
         .iter()
-        .filter(|bin| bin.chars().nth(0).unwrap().to_digit(10).unwrap() == *criteria.get(0).unwrap())
-        .filter(|bin| bin.chars().nth(1).unwrap().to_digit(10).unwrap() == *criteria.get(1).unwrap())
-        .filter(|bin| bin.chars().nth(2).unwrap().to_digit(10).unwrap() == *criteria.get(2).unwrap())
-        .filter(|bin| bin.chars().nth(3).unwrap().to_digit(10).unwrap() == *criteria.get(3).unwrap())
-        .filter(|bin| bin.chars().nth(4).unwrap().to_digit(10).unwrap() == *criteria.get(4).unwrap())
-        .filter(|bin| bin.chars().nth(5).unwrap().to_digit(10).unwrap() == *criteria.get(5).unwrap())
-        .filter(|bin| bin.chars().nth(6).unwrap().to_digit(10).unwrap() == *criteria.get(6).unwrap())
-        .filter(|bin| bin.chars().nth(7).unwrap().to_digit(10).unwrap() == *criteria.get(7).unwrap())
-        .filter(|bin| bin.chars().nth(8).unwrap().to_digit(10).unwrap() == *criteria.get(8).unwrap())
-        .map(|bin| bin.to_string())
-        .collect::<Vec<String>>()
+        .filter(|bin| bin.chars().nth(i).unwrap() == bit)
+        .map(|bin| bin.to_owned())
+        .collect::<Vec<&str>>()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn part_one_example() {
+        let input = "00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010";
+
+        let data = parse(input);
+        assert_eq!(part_a(&data), 198);
+    }
+
+    #[test]
+    fn part_two_example() {
+        let input = "00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010";
+
+        let data = parse(input);
+        assert_eq!(part_b(&data), 230);
+    }
 }
