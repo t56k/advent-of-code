@@ -3,7 +3,6 @@ use std::{io::Write, iter::once};
 
 const S: [usize; 2] = [40, 6];
 
-// requires nightly: cargo +nightly run
 pub fn main() {
     let (coords, folds) = include_str!("../input").split_once("\n\n").unwrap();
     let part_one = part_one(&coords, &folds);
