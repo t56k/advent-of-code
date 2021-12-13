@@ -3,6 +3,6 @@
 🎄🦀 Aiming for stable, idiomatic Rust with no external crates.
 
 ```
-cd 2021/day/{1|2}
+cd 2021/{1|2}
 cargo run
 ```
