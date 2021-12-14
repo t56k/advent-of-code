@@ -2,6 +2,7 @@ use std::mem;
 
 pub fn main() {
     let (polymer, insertions) = include_str!("../input").split_once("\n\n").unwrap();
+    let polymer = polymer.as_bytes().to_vec();
 
     let mut insertions = insertions
         .lines()
@@ -26,15 +27,14 @@ pub fn main() {
         })
         .collect::<Vec<_>>();
 
-    let part_one = process(&polymer, insertion.clone(), 10);
-    let part_two = process(&polymer, insertion, 40);
+    let part_one = process(polymer.clone(), insertion.clone(), 10);
+    let part_two = process(polymer, insertion, 40);
 
     println!("part one: {}", part_one);
     println!("part two: {}", part_two);
 }
 
-fn process(polymer: &str, insertion: Vec<([u8; 2], usize, usize)>, count: u64) -> u64 {
-    let polymer = polymer.as_bytes().to_vec();
+fn process(polymer: Vec<u8>, insertion: Vec<([u8; 2], usize, usize)>, count: u64) -> u64 {
     let (mut num, mut next) = (vec![0; insertion.len()], vec![0; insertion.len()]);
 
     polymer
