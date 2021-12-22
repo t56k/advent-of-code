@@ -22,6 +22,7 @@ impl From<&str> for Cuboid {
                     .map(|v| v.parse::<i32>().unwrap())
             })
             .collect::<Vec<_>>();
+
         Cuboid::new(c[0], c[1], c[2], c[3], c[4], c[5])
     }
 }
@@ -44,7 +45,6 @@ impl Cuboid {
             && (self.y_min <= other.y_max && self.y_max >= other.y_min)
             && (self.z_min <= other.z_max && self.z_max >= other.z_min)
         {
-            // on x
             if self.x_min < other.x_min {
                 result_vec.push(Cuboid::new(
                     self.x_min,
@@ -56,6 +56,7 @@ impl Cuboid {
                 ));
                 self.x_min = other.x_min;
             }
+
             if self.x_max > other.x_max {
                 result_vec.push(Cuboid::new(
                     other.x_max + 1,
@@ -67,7 +68,7 @@ impl Cuboid {
                 ));
                 self.x_max = other.x_max;
             }
-            // on y
+
             if self.y_min < other.y_min {
                 result_vec.push(Cuboid::new(
                     self.x_min,
@@ -79,6 +80,7 @@ impl Cuboid {
                 ));
                 self.y_min = other.y_min;
             }
+
             if self.y_max > other.y_max {
                 result_vec.push(Cuboid::new(
                     self.x_min,
@@ -90,7 +92,7 @@ impl Cuboid {
                 ));
                 self.y_max = other.y_max;
             }
-            // on z
+
             if self.z_min < other.z_min {
                 result_vec.push(Cuboid::new(
                     self.x_min,
@@ -102,6 +104,7 @@ impl Cuboid {
                 ));
                 self.z_min = other.z_min;
             }
+
             if self.z_max > other.z_max {
                 result_vec.push(Cuboid::new(
                     self.x_min,
@@ -116,6 +119,7 @@ impl Cuboid {
         } else {
             result_vec.push(*self)
         }
+
         result_vec
     }
 
@@ -137,9 +141,11 @@ fn parse(input: &str) -> Vec<Cuboid> {
         for oc in acc.iter_mut() {
             cuboids.append(&mut oc.intersect_split(&parsed_cuboid));
         }
+
         if switch {
             cuboids.push(parsed_cuboid);
         }
+
         cuboids
     })
 }
