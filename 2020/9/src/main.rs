@@ -1,43 +1,70 @@
-use itertools::Itertools;
-use std::fs;
+use std::time::Instant;
 
-pub fn main() {
-    let input = fs::read_to_string("./input").expect("Couldn't read input");
-    let contents = parse_input(input);
-    // let groups = contents.chunks(25);
-
-    let res = check_for_factors(&contents, 222);
-    println!("{}", res);
+fn parse(input: &str) -> Vec<usize> {
+    input.lines().map(|n| n.parse().unwrap()).collect()
 }
 
-// fn check_for_factors(contents: Vec<isize>, target: isize) -> bool {
-//     contents.iter().enumerate().any(|(i, &x)| {
-//         contents
-//             .iter()
-//             .enumerate()
-//             .filter(|&(j, _)| i != j)
-//             .any(|(_, &y)| x + y == target)
-//     })
-// }
-
-fn parse_input(input: String) -> Vec<isize> {
-    input.lines().map(|l| l.parse().unwrap()).collect()
+fn part_one(nums: &Vec<usize>) -> usize {
+    nums.windows(26)
+        .find(|set| {
+            for i in 0..24 {
+                for j in (i + 1)..25 {
+                    if set[i] + set[j] == set[25] {
+                        return false;
+                    }
+                }
+            }
+            true
+        })
+        .unwrap()[25]
 }
 
-// fn check_for_factors(contents: Vec<isize>, target: isize) -> bool {
-//     let n = contents.len();
-//     for i in 0..n {
-//         let x = contents[i];
-//         for j in (i + 1)..n {
-//             let y = contents[j];
-//             if x + y == target {
-//                 return true;
-//             }
-//         }
-//     }
-//     false
-// }
+fn part_two(nums: &Vec<usize>, target: usize) -> usize {
+    for i in 0..nums.len() {
+        for j in i + 1..nums.len() {
+            let span = nums[i..j].to_vec();
+            if span.iter().sum::<usize>() == target {
+                let min_v: usize = *span.iter().min().unwrap();
+                let max_v: usize = *span.iter().max().unwrap();
+                return min_v + max_v;
+            }
+        }
+    }
+    1
+}
 
-fn check_for_factors(contents: &[isize], target: isize) -> bool {
-    contents.iter().combinations(2).any(|x| x[0] + x[1] == target)
+fn main() {
+    let input = include_str!("../input");
+    let nums = parse(&input);
+    let target = part_one(&nums); // do it twice so we can benchmark it
+
+    benchmark(|| println!("part one: {}", part_one(&nums)));
+    benchmark(|| println!("part two: {}", part_two(&nums, target)));
+}
+
+fn benchmark<F, T>(f: F) -> T
+where
+    F: Fn() -> T,
+{
+    let start = Instant::now();
+    let result = f();
+    println!("time: {}µs", start.elapsed().as_micros());
+
+    result
+}
+
+#[test]
+fn check_part_one() {
+    let input = include_str!("../example_one");
+    let nums = parse(&input);
+
+    assert_eq!(127, part_one(&nums));
+}
+
+#[test]
+fn check_part_two() {
+    let input = include_str!("../example_two");
+    let nums = parse(&input);
+
+    assert_eq!(62, part_two(&nums, 127));
 }
